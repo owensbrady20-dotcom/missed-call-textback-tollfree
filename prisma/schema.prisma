@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Business {
+  id                 String    @id @default(uuid())
+  name               String
+  // Holds a Twilio toll-free number (e.g. +18885551234) for this build —
+  // avoids A2P 10DLC/Campaign Registry entirely; see README for Toll-Free
+  // Verification instead.
+  twilioNumber       String    @unique
+  // Null means this tenant's real number already forwards to the Twilio
+  // number on no-answer/busy at the carrier level — the call arriving here
+  // is already a confirmed miss, so /voice skips redialing and texts back
+  // immediately instead of ringing this number a second time.
+  forwardingNumber   String?
+  smsTemplate        String    @default("Sorry we missed your call! We'll text you back shortly.")
+  ownerNotifyNumber  String?
+  active             Boolean   @default(true)
+  dialTimeoutSeconds Int       @default(20)
+  smsCooldownMinutes Int       @default(30)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  callLogs           CallLog[]
+
+  @@index([twilioNumber])
+  @@index([name])
+}
+
+model CallLog {
+  id            String    @id @default(uuid())
+  businessId    String
+  business      Business  @relation(fields: [businessId], references: [id])
+  callSid       String    @unique
+  callerNumber  String
+  calledNumber  String
+  dialOutcome   String?
+  textSent      Boolean   @default(false)
+  textSentAt    DateTime?
+  smsSkipReason String?
+  ownerNotified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([businessId, callerNumber, createdAt])
+}

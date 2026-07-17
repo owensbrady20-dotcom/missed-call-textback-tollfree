@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Toll-Free Text-Back — Console</title>
+<link rel="stylesheet" href="/admin.css" />
+</head>
+<body>
+
+<div id="tokenGate" class="gate">
+  <div class="gate-card">
+    <div class="brand"><span class="brand-mark">&#9670;</span> Toll-Free Text-Back</div>
+    <p class="muted">Enter the ADMIN_TOKEN configured on the server to open the console.</p>
+    <input type="password" id="tokenInput" placeholder="Admin token" />
+    <button id="tokenSaveBtn">Unlock console</button>
+    <div id="error" class="error-text"></div>
+  </div>
+</div>
+
+<div id="appShell" class="shell" style="display:none">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">&#9670;</span> Toll-Free Text-Back</div>
+    <div class="sidebar-sub">Console</div>
+    <nav class="sidebar-nav">
+      <a href="#businesses" class="nav-item active">Businesses</a>
+      <a href="#calllog" class="nav-item" id="callLogNavLink" style="display:none">Call log</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="secondary" id="logoutBtn">Change token</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="panel" id="businesses">
+      <div class="panel-head">
+        <h2>Add a business</h2>
+      </div>
+      <form id="createForm" class="form-grid">
+        <label>Business name
+          <input name="name" required />
+        </label>
+        <label>Toll-free number (assigned to this tenant)
+          <input name="twilioNumber" placeholder="+18885551234" required />
+        </label>
+        <label class="span-2">Forwarding number — optional. Set this if the toll-free number should ring a phone before texting back. Leave blank if the tenant's real published number already conditionally forwards to the toll-free number on no-answer/busy (the call arriving here is already a confirmed miss, so we text back immediately with no redial).
+          <input name="forwardingNumber" placeholder="+15557654321" />
+        </label>
+        <label>Owner notify number (optional)
+          <input name="ownerNotifyNumber" placeholder="+15557654321" />
+        </label>
+        <label class="span-2">SMS template
+          <textarea name="smsTemplate">Sorry we missed your call! We'll text you back shortly.</textarea>
+        </label>
+        <button type="submit" class="span-2">Create business</button>
+      </form>
+      <div id="createError" class="error-text"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Businesses <span id="businessCount" class="count-pill"></span></h2>
+        <input type="search" id="searchInput" placeholder="Search name or number…" />
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Toll-free #</th>
+            <th>Forwards to</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="businessTableBody"></tbody>
+      </table>
+      <div class="pager">
+        <button class="secondary" id="prevPageBtn" disabled>&larr; Prev</button>
+        <span id="pageInfo" class="muted"></span>
+        <button class="secondary" id="nextPageBtn" disabled>Next &rarr;</button>
+      </div>
+    </section>
+
+    <section class="panel" id="calllog" style="display:none">
+      <div class="panel-head">
+        <h2 id="callLogTitle">Call log</h2>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Caller</th>
+            <th>Outcome</th>
+            <th>Texted?</th>
+          </tr>
+        </thead>
+        <tbody id="callLogTableBody"></tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<script src="/admin.js"></script>
+
+</body>
+</html>
